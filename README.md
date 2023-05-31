@@ -3,6 +3,7 @@
 This is a Node.js API for recommending friends of friends based on a given person's CPF (Cadastro de Pessoas Físicas). The API allows creating persons, establishing relationships between them, and retrieving friend recommendations.
 
 ## The Tech Stack
+
 AWS Lambda, API Gateway, DynamoDB, Serverless Framework
 
 # Getting Started
@@ -27,17 +28,21 @@ cd recomendador-de-amigos
 npm install
 ```
 
-## 4. Install and configure Serverless 
+## 4. Install and configure Serverless
+
 ```bash
 npm instal -g serverless
 ```
+
 More details to set up the AWS credentials at: [Serverless Doc](https://www.serverless.com/framework/docs/providers/aws/guide/credentials)
 
 ## 5. Run the function you want to test
+
 ```bash
 serverless invoke local --function getRecommendationsByCpf --data '{"pathParameters": {"cpf":"11111111111"}}
 ```
-*Todo: Setup the serverless-offline and serverless-dynamodb-local plugins for an appropiate local environment* 
+
+_Todo: Setup the serverless-offline and serverless-dynamodb-local plugins for an appropiate local environment_
 
 # Project Structure
 
@@ -76,7 +81,6 @@ The project structure is organized as follows:
 
 ## File/Directory Description
 
-
 | File/Directory     | Description                                                                                                                                                                                                                                         |
 | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | serverless.yml     | This is a configuration file for the serverless framework. It defines the serverless application's infrastructure, functions, events, and other resources. It specifies the AWS Lambda functions, their triggers, and any necessary configurations. |
@@ -90,26 +94,28 @@ The project structure is organized as follows:
 | - jsonSchemas/     | This folder contains JSON schemas that define the structure and validation rules for the data models.                                                                                                                                               |
 | services/          | This folder contains the code for various services or business logic for handling data requests to the database                                                                                                                                     |
 
-
 # API Endpoints
 
 ## Person
 
-| Method | Description         | Endpoint   |
-| ------ | ------------------- | ---------- |
-| POST   | Create a new person | /person |
+| Method | Description         | Endpoint |
+| ------ | ------------------- | -------- |
+| POST   | Create a new person | /person  |
 
 <details>
 <summary> Request </summary>
 
 Using curl
+
 ```bash
 curl --location '{awsURL}/person' \
 --header 'Content-Type: application/json' \
 --data '{ "cpf": "77777777777", "name": "Giba" }'
 ```
- Using serverless CLI
- ```bash
+
+Using serverless CLI
+
+```bash
 serverless invoke local --function createPerson --data '{ "cpf": "77777777777", "name": "Giba" }'
 ```
 
@@ -157,19 +163,21 @@ serverless invoke local --function createPerson --data '{ "cpf": "77777777777", 
 
 </details>
 
-| Method | Description              | Endpoint        |
-| ------ | ------------------------ | --------------- |
+| Method | Description              | Endpoint     |
+| ------ | ------------------------ | ------------ |
 | GET    | Retrieve a person by CPF | /person/:cpf |
 
 <details>
 <summary> Request </summary>
 
 Using curl
+
 ```bash
 curl --location '{awsUrl}/person/77777777777'
 ```
-  
+
 Using serverless CLI
+
 ```bash
 serverless invoke local --function getPersonByCpf --data '{"pathParameters": {"cpf":"11111111111"}}'
 ```
@@ -208,14 +216,15 @@ serverless invoke local --function getPersonByCpf --data '{"pathParameters": {"c
 
 ## Relationship
 
-| Method | Description         | Endpoint         |
-| ------ | ------------------- | ---------------- |
+| Method | Description               | Endpoint      |
+| ------ | ------------------------- | ------------- |
 | POST   | Create a new relationship | /relationship |
 
 <details>
 <summary> Request </summary>
 
 Using curl
+
 ```bash
 curl --location '{awsUrl}/relationship' \
 --header 'Content-Type: application/json' \
@@ -223,6 +232,7 @@ curl --location '{awsUrl}/relationship' \
 ```
 
 Using serverless CLI
+
 ```bash
 serverless invoke local --function createRelationship --data '{ "cpf1": "11111111111", "cpf2": "22222222222" }'
 ```
@@ -273,21 +283,25 @@ serverless invoke local --function createRelationship --data '{ "cpf1": "1111111
 
 ## Recommendations
 
-| Method | Description                             | Endpoint                 |
-| ------ | --------------------------------------- | ------------------------ |
+| Method | Description                             | Endpoint              |
+| ------ | --------------------------------------- | --------------------- |
 | GET    | Get friend recommendations for a person | /recommendations/:cpf |
 
 <details>
 <summary> Request </summary>
 
 Using curl
+
 ```bash
 curl --location '{awsUrl}/recommendations/11111111111'
 ```
+
 Using serverless CLI
+
 ```bash
 serverless invoke local --function getRecommendationsByCpf --data '{"pathParameters": {"cpf":"11111111111"}}'
 ```
+
 </details>
 
 <details>
