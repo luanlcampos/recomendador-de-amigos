@@ -1,0 +1,107 @@
+# For full config options, check the docs:
+#    docs.serverless.com
+
+service: recomendador-de-amigos
+# app and org for use with dashboard.serverless.com
+#app: your-app-name
+#org: your-org-name
+
+# You can pin your service to only deploy with a specific Serverless version
+# Check out our docs for more details
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: dev
+  region: us-east-1
+  environment:
+    AWS_DYNAMODB_TABLE_NAME: "recomendador-de-amigos"
+
+  iam:
+    role:
+      statements:
+        - Effect: "Allow"
+          Action:
+            - "logs:CreateLogGroup"
+            - "logs:CreateLogStream"
+            - "logs:PutLogEvents"
+          Resource: "arn:aws:logs:*:*:*"
+        - Effect: "Allow"
+          Action:
+            - "dynamodb:PutItem"
+            - "dynamodb:UpdateItem"
+            - "dynamodb:Get*"
+          Resource: "arn:aws:dynamodb:*:*:table/recomendador-de-amigos"
+
+# you can define service wide environment variables here
+#  environment:
+#    variable1: value1
+
+# you can add packaging information here
+#package:
+#  patterns:
+#    - '!exclude-me.js'
+#    - '!exclude-me-dir/**'
+#    - include-me.js
+#    - include-me-dir/**
+
+functions:
+  createPerson:
+    handler: src/api/person/post.handler
+    events:
+      - http:
+          path: /person
+          method: post
+          # Enable CORS. Don't forget to return the right header in your response
+          cors: true
+          request:
+            schemas:
+              application/json: ${file(src/models/jsonSchemas/createPersonModel.json)}
+
+  getPersonByCpf:
+    handler: src/api/person/get.handler
+    events:
+      - http:
+          path: /person/{cpf}
+          method: get
+          cors: true
+          request:
+            parameters:
+              paths:
+                cpf: true
+
+  createRelationship:
+    handler: src/api/relationship/post.handler
+    events:
+      - http:
+          path: /relationship
+          method: post
+          # Enable CORS. Don't forget to return the right header in your response
+          cors: true
+          request:
+            schemas:
+              application/json: ${file(src/models/jsonSchemas/createRelationshipModel.json)}
+
+  getRecommendationsByCpf:
+    handler: src/api/recommendations/get.handler
+    events:
+      - http:
+          path: /recommendations/{cpf}
+          method: get
+          cors: true
+          request:
+            parameters:
+              paths:
+                cpf: true
+#    Define function environment variables here
+#    environment:
+#      variable2: value2
+
+# you can add CloudFormation resource templates here
+# resources:
+#   Resources:
+#     DynamoDB:
+#       Type: AWS::DynamoDB::Table
+#       Properties:
+#         Full List of DynamoDB properties at https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-dynamodb-table.html
