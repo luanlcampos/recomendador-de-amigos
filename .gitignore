@@ -4,3 +4,8 @@ jspm_packages
 
 # Serverless directories
 .serverless
+# Offline dynamodb instace
+# When using the dynamodb local plugin
+.dynamodb
+# When using docker compose
+docker

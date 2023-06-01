@@ -16,7 +16,8 @@ provider:
   stage: dev
   region: us-east-1
   environment:
-    AWS_DYNAMODB_TABLE_NAME: "recomendador-de-amigos"
+    AWS_DYNAMODB_TABLE_NAME: "recomendador-de-amigos-${self:provider.stage}"
+    AWS_DYNAMODB_LOCAL_PORT: 8000
 
   iam:
     role:
@@ -32,19 +33,44 @@ provider:
             - "dynamodb:PutItem"
             - "dynamodb:UpdateItem"
             - "dynamodb:Get*"
-          Resource: "arn:aws:dynamodb:*:*:table/recomendador-de-amigos"
+          Resource: "arn:aws:dynamodb:*:*:table/${self:provider.environment.AWS_DYNAMODB_TABLE_NAME}"
+
+plugins:
+  - serverless-dynamodb-local
+  - serverless-offline
+
+custom:
+  stage: ${opt:stage, self:provider.stage}
+  # DB_PREFIX: ${file(./config.yml):${self:custom.stage}.DB_PREFIX}
+  dynamodb:
+    stages:
+      - dev
+    start:
+      docker: true
+      port: ${self:provider.environment.AWS_DYNAMODB_LOCAL_PORT}
+      inMemory: true
+      migrate: true
+      seed: true
+    seed:
+      domain:
+        # seed is not creating relationships as it does not support string sets
+        sources:
+          - table: ${self:provider.environment.AWS_DYNAMODB_TABLE_NAME}
+            sources: [./src/models/data/aws/offline/migrations/people-seed.json]
 
 # you can define service wide environment variables here
 #  environment:
 #    variable1: value1
 
 # you can add packaging information here
-#package:
-#  patterns:
-#    - '!exclude-me.js'
-#    - '!exclude-me-dir/**'
-#    - include-me.js
-#    - include-me-dir/**
+
+package:
+  patterns:
+    - "!node_modules/dynamodb-localhost/**"
+    - "!node_modules/serverless-dynamodb-local/**"
+    - "!node_modules/serverless-offline/**"
+    - "!docker/"
+    - "!.serverless/"
 
 functions:
   createPerson:
@@ -94,14 +120,25 @@ functions:
             parameters:
               paths:
                 cpf: true
-#    Define function environment variables here
-#    environment:
-#      variable2: value2
+  #    Define function environment variables here
+  #    environment:
+  #      variable2: value2
 
-# you can add CloudFormation resource templates here
-# resources:
-#   Resources:
-#     DynamoDB:
-#       Type: AWS::DynamoDB::Table
-#       Properties:
-#         Full List of DynamoDB properties at https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-dynamodb-table.html
+  # you can add CloudFormation resource templates here
+resources:
+  Resources:
+    peopleTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        #         Full List of DynamoDB properties at https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-dynamodb-table.html
+        TableName: ${self:provider.environment.AWS_DYNAMODB_TABLE_NAME}
+        BillingMode: PROVISIONED
+        AttributeDefinitions:
+          - AttributeName: cpf
+            AttributeType: S
+        KeySchema:
+          - AttributeName: cpf
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
