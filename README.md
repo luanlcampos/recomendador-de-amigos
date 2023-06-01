@@ -60,8 +60,6 @@ Note: this method requires AWS configuration as it is using the actual AWS Dynam
 serverless invoke local --function getRecommendationsByCpf --data '{"pathParameters": {"cpf":"11111111111"}}
 ```
 
-_Todo: Setup the serverless-offline and serverless-dynamodb-local plugins for an appropiate local environment_
-
 # Project Structure
 
 The project structure is organized as follows:
