@@ -36,7 +36,25 @@ npm instal -g serverless
 
 More details to set up the AWS credentials at: [Serverless Doc](https://www.serverless.com/framework/docs/providers/aws/guide/credentials)
 
-## 5. Run the function you want to test
+## 5. Running the API
+
+### 5.1 Running it locally with sls offline and dynamodb local
+
+Note: I am using docker to create a local instance of DynamoDB. SLS offers a plugin for running DynamoDB local, but the library is outdated. To make it work, you would have to manually change the DynamoDB image download URL in the node_modules. [Click here to check the GitHub Issue on that](https://github.com/99x/dynamodb-localhost/pull/78)
+
+The following command will run the following actions:
+
+1. Start the DynamoDB container by running the `docker-compose.yml` with `docker compose up -d`
+2. Start the server by using the [serverless-offline](https://github.com/dherault/serverless-offline) plugin running `sls offline start`
+3. API will be running on http://localhost:3000/dev
+
+```bash
+npm run dev:local
+```
+
+### 5.2 Run the function you want to test
+
+Note: this method requires AWS configuration as it is using the actual AWS DynamoDB table. This is a good way to test the functions before deploying.
 
 ```bash
 serverless invoke local --function getRecommendationsByCpf --data '{"pathParameters": {"cpf":"11111111111"}}
@@ -344,3 +362,15 @@ serverless invoke local --function getRecommendationsByCpf --data '{"pathParamet
 ```
 
 </details>
+
+# Deploy
+
+To deploy our applicaiton, Serverless will use the configuration written in the serverless.yml file to create/update the CloudFormation stack with your code. To deploy, you have to execute:
+
+```bash
+sls deploy
+```
+
+You can find more information and options of deploy [here](https://www.serverless.com/framework/docs/providers/aws/guide/deploying).
+
+_**TODO**: Create a pipeline on GitHub to deploy everytime a new code is merged/pushed into main._
